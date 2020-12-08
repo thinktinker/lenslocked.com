@@ -8,6 +8,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var (
+	homeTemplate    *template.Template
+	contactTemplate *template.Template
+)
+
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	if err := homeTemplate.Execute(w, nil); err != nil {
@@ -17,8 +22,9 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 func contact(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html") //or you can you text/plain
-	fmt.Fprint(w, "<h1>Contact Us</h1>")
-	fmt.Fprint(w, "<p>Get in touch with us. Send an email to <a href=\"mailto:support@lenslocked.com\">lenslocked.com</a></p>")
+	if err := contactTemplate.Execute(w, nil); err != nil {
+		panic(err)
+	}
 }
 
 func faq(w http.ResponseWriter, r *http.Request) {
@@ -32,13 +38,15 @@ func notfound(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "<h1>Page Not Found</h1><p>We are unable to find the page that you are looking for.</p>")
 }
 
-var homeTemplate *template.Template
-
 func main() {
 
 	var err error
 	homeTemplate, err = template.ParseFiles("views/home.gohtml")
+	if err != nil {
+		panic(err)
+	}
 
+	contactTemplate, err = template.ParseFiles("views/contact.gohtml")
 	if err != nil {
 		panic(err)
 	}
