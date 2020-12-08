@@ -1,0 +1,25 @@
+<h1>Hello, {{.Name}}</h1>
+<p>Age: {{.Age}}</p>
+<p>Weight: {{.Weight}}</p>
+<p>Roles given: {{.Roles}}</p>
+<p>Next of Kin: {{.Kin}}</p>
+<pre> {{.Kin}}</pre>
+<p>Pet Type:{{.Pet.Type}}, Pet Name: {{.Pet.Name}}</p>
+
+<!-- Iterate through a slice -->
+{{range .Roles}}
+{{.}}
+{{end}}
+
+<!-- Iterate through a map object -->
+{{range $key, $value := .Kin}}
+<p>
+Relationship: {{$key}}
+Name: {{$value}}
+</p>
+{{end}}
+
+<!-- Go template handles the encoding; this prevents nefarious xss or code injection from being run -->
+<script>
+    var m = {{.Kin}};
+</script>
