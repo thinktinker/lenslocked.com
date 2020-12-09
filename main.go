@@ -45,18 +45,12 @@ func main() {
 
 	var err error
 
-	homeTemplate, err = template.ParseFiles(
-		"views/home.gohtml", 
-		"views/layouts/footer.gohtml"
-	)
+	homeTemplate, err = template.ParseFiles("views/home.gohtml", "views/layouts/footer.gohtml")
 	if err != nil {
 		panic(err)
 	}
 
-	contactTemplate, err = template.ParseFiles(
-		"views/contact.gohtml",
-		"views/layouts/footer.gohtml"
-	)
+	contactTemplate, err = template.ParseFiles("views/contact.gohtml", "views/layouts/footer.gohtml")
 	if err != nil {
 		panic(err)
 	}
