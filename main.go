@@ -1,36 +1,41 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
-	"text/template"
 
 	"github.com/gorilla/mux"
+	"lenslocked.com/views"
 )
 
 var (
-	homeTemplate    *template.Template
-	contactTemplate *template.Template
-	faqTemplate     *template.Template
+	homeView     *views.View
+	contactView  *views.View
+	faqView      *views.View
+	notfoundView *views.View
 )
 
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	if err := homeTemplate.Execute(w, nil); err != nil {
+	if err := homeView.Template.Execute(w, nil); err != nil {
 		panic(err)
 	}
 }
 
 func contact(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html") //or you can you text/plain
-	if err := contactTemplate.Execute(w, nil); err != nil {
-		panic(err)
+
+	//you need to call Template.Execute to access the struct's View Template
+	//the second argurment is set as nil as there's no data to pass to it
+	if err := contactView.Template.Execute(w, nil); err != nil {
 	}
 }
 
 func faq(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	if err := faqTemplate.Execute(w, nil); err != nil {
+
+	//you need to call Template.Execute to access the struct's View Template
+	//the second argurment is set as nil as there's no data to pass to it
+	if err := faqView.Template.Execute(w, nil); err != nil {
 		panic(err)
 	}
 }
@@ -38,27 +43,20 @@ func faq(w http.ResponseWriter, r *http.Request) {
 func notfound(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusNotFound)
-	fmt.Fprint(w, "<h1>Page Not Found</h1><p>We are unable to find the page that you are looking for.</p>")
+
+	//you need to call Template.Execute to access the struct's View Template
+	//the second argurment is set as nil as there's no data to pass to it
+	if err := notfoundView.Template.Execute(w, nil); err != nil {
+		panic(err)
+	}
 }
 
 func main() {
 
-	var err error
-
-	homeTemplate, err = template.ParseFiles("views/home.gohtml", "views/layouts/footer.gohtml")
-	if err != nil {
-		panic(err)
-	}
-
-	contactTemplate, err = template.ParseFiles("views/contact.gohtml", "views/layouts/footer.gohtml")
-	if err != nil {
-		panic(err)
-	}
-
-	faqTemplate, err = template.ParseFiles("views/faq.gohtml", "views/layouts/footer.gohtml")
-	if err != nil {
-		panic(err)
-	}
+	homeView = views.NewView("views/home.gohtml")
+	contactView = views.NewView("views/contact.gohtml")
+	faqView = views.NewView("views/faq.gohtml")
+	notfoundView = views.NewView("views/notfound.gohtml")
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", home)
