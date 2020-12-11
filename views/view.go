@@ -2,9 +2,9 @@ package views
 
 import "html/template"
 
-func NewView(files ...string) *View {
+func NewView(Layout string, files ...string) *View {
 
-	files = append(files, "views/layouts/footer.gohtml")
+	files = append(files, "views/layouts/bootstrap404.gohtml", "views/layouts/bootstrap.gohtml", "views/layouts/footer.gohtml")
 
 	t, err := template.ParseFiles(files...)
 
@@ -12,9 +12,10 @@ func NewView(files ...string) *View {
 		panic(err)
 	}
 
-	return &View{Template: t}
+	return &View{Template: t, Layout: Layout}
 }
 
 type View struct {
 	Template *template.Template
+	Layout   string
 }
