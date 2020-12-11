@@ -16,70 +16,23 @@ var (
 
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-
-	//Opton 1:
-	//you need to call Template.Execute to access the struct's View Template
-	//the second argurment is set as nil as there's no data to pass to it
-	// if err := homeView.Template.Execute(w, nil); err != nil {
-	// 	panic(err)
-	// }
-
-	//Option 2:
-	//Improved: use ExecuteTemplate to render home.gohtml's "yield" template set in bootstrap.gohtml
-	if err := homeView.Template.ExecuteTemplate(w, homeView.Layout, nil); err != nil {
-		panic(err)
-	}
+	must(homeView.Render(w, nil))
 }
 
 func contact(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html") //or you can you text/plain
-
-	//Option 1:
-	//you need to call Template.Execute to access the struct's View Template
-	//the second argurment is set as nil as there's no data to pass to it
-	// if err := contactView.Template.Execute(w, nil); err != nil {
-	// 	panic(err)
-	// }
-
-	//Option 2:
-	//Improved: use ExecuteTemplate to render contact.gohtml's "yield" template set in boostrap.gohtml
-	if err := contactView.Template.ExecuteTemplate(w, contactView.Layout, nil); err != nil {
-		panic(err)
-	}
+	must(contactView.Render(w, nil))
 }
 
 func faq(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-
-	//Option 1:
-	//you need to call Template.Execute to access the struct's View Template
-	//the second argurment is set as nil as there's no data to pass to it
-	// if err := faqView.Template.Execute(w, nil); err != nil {
-	// 	panic(err)
-	// }
-
-	//Option 2:
-	//Improved: Use ExecuteTemplate to render faq.gohtml's "yield" template set in bootstrap.gohtml
-	if err := faqView.Template.ExecuteTemplate(w, faqView.Layout, nil); err != nil {
-		panic(err)
-	}
+	must(faqView.Render(w, nil))
 }
 
 func notfound(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusNotFound)
-
-	//Option 1
-	//you need to call Template.Execute to access the struct's View Template
-	//the second argurment is set as nil as there's no data to pass to it
-	// if err := notfoundView.Template.Execute(w, nil); err != nil {
-	// 	panic(err)
-	// }
-
-	//Option 2
-	if err := notfoundView.Template.ExecuteTemplate(w, notfoundView.Layout, nil); err != nil {
-		panic(err)
-	}
+	must(notfoundView.Render(w, nil))
 }
 
 func main() {
@@ -96,3 +49,29 @@ func main() {
 	r.NotFoundHandler = http.HandlerFunc(notfound)
 	http.ListenAndServe(":3000", r)
 }
+
+func must(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+//How the template rendering improved
+
+//Opton 1:
+//you need to call Template.Execute to access the struct's View Template
+//the second argurment is set as nil as there's no data to pass to it
+// if err := homeView.Template.Execute(w, nil); err != nil {
+// 	panic(err)
+// }
+
+//Option 2:
+//Improved: use ExecuteTemplate to render home.gohtml's "yield" template set in bootstrap.gohtml
+// if err := homeView.Template.ExecuteTemplate(w, homeView.Layout, nil); err != nil {
+// 	panic(err)
+// }
+
+//Option 3:
+// Improved again: move the rendering process ExecuteTemplate to views.go
+// The must function is used to render the errors in the console
+// must(homeView.Render(w, nil))
