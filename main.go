@@ -1,64 +1,53 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
-	"text/template"
 
 	"github.com/gorilla/mux"
+	"lenslocked.com/views"
 )
 
 var (
-	homeTemplate    *template.Template
-	contactTemplate *template.Template
-	faqTemplate     *template.Template
+	homeView     *views.View
+	contactView  *views.View
+	faqView      *views.View
+	notfoundView *views.View
 )
 
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	if err := homeTemplate.Execute(w, nil); err != nil {
-		panic(err)
-	}
+	catchErr(homeView.Render(w, nil))
 }
 
 func contact(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html") //or you can you text/plain
-	if err := contactTemplate.Execute(w, nil); err != nil {
-		panic(err)
-	}
+	catchErr(contactView.Render(w, nil))
 }
 
 func faq(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	if err := faqTemplate.Execute(w, nil); err != nil {
-		panic(err)
-	}
+	catchErr(faqView.Render(w, nil))
 }
 
 func notfound(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusNotFound)
-	fmt.Fprint(w, "<h1>Page Not Found</h1><p>We are unable to find the page that you are looking for.</p>")
+	catchErr(notfoundView.Render(w, nil))
+
+}
+
+func catchErr(err error) {
+	if err != nil {
+		panic(err)
+	}
 }
 
 func main() {
 
-	var err error
-
-	homeTemplate, err = template.ParseFiles("views/home.gohtml")
-	if err != nil {
-		panic(err)
-	}
-
-	contactTemplate, err = template.ParseFiles("views/contact.gohtml")
-	if err != nil {
-		panic(err)
-	}
-
-	faqTemplate, err = template.ParseFiles("views/faq.gohtml")
-	if err != nil {
-		panic(err)
-	}
+	homeView = views.NewView("bootstrap", "views/home.gohtml")
+	contactView = views.NewView("bootstrap", "views/contact.gohtml")
+	faqView = views.NewView("bootstrap", "views/faq.gohtml")
+	notfoundView = views.NewView("bootstrap", "views/notfound.gohtml")
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", home)
