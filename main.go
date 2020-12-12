@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"lenslocked.com/controllers"
 	"lenslocked.com/views"
 )
 
@@ -12,8 +13,10 @@ var (
 	contactView  *views.View
 	faqView      *views.View
 	notfoundView *views.View
-	signupView   *views.View
 )
+
+// Handler functions (or Actions) START here
+// ****************************************
 
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
@@ -36,24 +39,28 @@ func notfound(w http.ResponseWriter, r *http.Request) {
 	must(notfoundView.Render(w, nil))
 }
 
-func signup(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	must(signupView.Render(w, nil))
-}
+// ****************************************
+// Handler functions (or Actions) END here
 
 func main() {
-
 	homeView = views.NewView("bootstrap", "views/home.gohtml")
 	contactView = views.NewView("bootstrap", "views/contact.gohtml")
 	faqView = views.NewView("bootstrap", "views/faq.gohtml")
-	signupView = views.NewView("bootstrap", "views/signup.gohtml")
+
+	//1. Create an instance of a new Users controller
+	//that returns the address of a struct &Users instance
+	userC := controllers.NewUsers()
+
 	notfoundView = views.NewView("bootstrap404", "views/notfound.gohtml")
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", home)
 	r.HandleFunc("/contact", contact)
 	r.HandleFunc("/faq", faq)
-	r.HandleFunc("/signup", signup)
+
+	// 2. use the user controller to handle the routing
+	r.HandleFunc("/signup", userC.New)
+
 	r.NotFoundHandler = http.HandlerFunc(notfound)
 	http.ListenAndServe(":3000", r)
 }
