@@ -54,12 +54,15 @@ func main() {
 	notfoundView = views.NewView("bootstrap404", "views/notfound.gohtml")
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", home)
-	r.HandleFunc("/contact", contact)
-	r.HandleFunc("/faq", faq)
+	r.HandleFunc("/", home).Methods("GET")
+	r.HandleFunc("/contact", contact).Methods("GET")
+	r.HandleFunc("/faq", faq).Methods("GET")
 
-	// 2. use the user controller to handle the routing
-	r.HandleFunc("/signup", userC.New)
+	// 1.1 Use the user controller to handle routes for a GET request
+	r.HandleFunc("/signup", userC.New).Methods("GET")
+
+	// 2 Set the /signup to lookout for a POST request
+	r.HandleFunc("/signup", userC.Create).Methods("POST")
 
 	r.NotFoundHandler = http.HandlerFunc(notfound)
 	http.ListenAndServe(":3000", r)
