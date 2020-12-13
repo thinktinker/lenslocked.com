@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/schema"
 	"lenslocked.com/views"
 )
 
@@ -37,18 +38,23 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	// 2. Postform's results are derived as key value pairs
-	//    r.PostForm = map[string][]string
-	fmt.Fprintln(w, r.PostForm["email"])
-	fmt.Fprintln(w, r.PostForm["password"])
-
-	// 3. PostFormValue does not need r.ParseForm
-	//    It ignores errors and returns the first value of a named component
-	// fmt.Fprintln(w, r.PostFormValue("email"))
-	// fmt.Fprintln(w, r.PostFormValue("password"))
-
+	// 2.1 Instead of using PostForm to call on individual form values
+	//     e.g fmt.Fprintln(w, r.PostForm['email'])
+	//     we are going to use gorilla schema's Decoder to grab all the POST values
+	//
+	dec := schema.NewDecoder()
+	var form SignUpForm
+	if err := dec.Decode(&form, r.PostForm); err != nil {
+		panic(err)
+	}
+	fmt.Fprintln(w, form)
 }
 
 type Users struct {
 	NewView *views.View
+}
+
+type SignUpForm struct {
+	Email    string `schema:"email"`
+	Password string `schema:"password"`
 }
