@@ -30,7 +30,23 @@ func (u *Users) New(w http.ResponseWriter, r *http.Request) {
 // This is used to create a new user account.
 // POST /signup
 func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "We received your response")
+
+	// 1. r.ParseForm is required to put the results of
+	//    a POST, PUT or PATCH method into r.PostForm or r.Form
+	if err := r.ParseForm(); err != nil {
+		panic(err)
+	}
+
+	// 2. Postform's results are derived as key value pairs
+	//    r.PostForm = map[string][]string
+	fmt.Fprintln(w, r.PostForm["email"])
+	fmt.Fprintln(w, r.PostForm["password"])
+
+	// 3. PostFormValue does not need r.ParseForm
+	//    It ignores errors and returns the first value of a named component
+	// fmt.Fprintln(w, r.PostFormValue("email"))
+	// fmt.Fprintln(w, r.PostFormValue("password"))
+
 }
 
 type Users struct {
