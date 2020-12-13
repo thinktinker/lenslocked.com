@@ -18,7 +18,9 @@ func NewUsers() *Users {
 }
 
 func (u *Users) New(w http.ResponseWriter, r *http.Request) {
-	u.NewView.Render(w, nil)
+	if err := u.NewView.Render(w, nil); err != nil {
+		panic(err)
+	}
 }
 
 type Users struct {
