@@ -47,9 +47,9 @@ func main() {
 	contactView = views.NewView("bootstrap", "views/contact.gohtml")
 	faqView = views.NewView("bootstrap", "views/faq.gohtml")
 
-	//1. Create an instance of a new Users controller
-	//that returns the address of a struct &Users instance
-	userC := controllers.NewUsers()
+	// 1. Create an instance of a new Users controller
+	// that returns the address of a struct &Users object
+	usersC := controllers.NewUsers()
 
 	notfoundView = views.NewView("bootstrap404", "views/notfound.gohtml")
 
@@ -58,8 +58,8 @@ func main() {
 	r.HandleFunc("/contact", contact)
 	r.HandleFunc("/faq", faq)
 
-	// 2. use the user controller to handle the routing
-	r.HandleFunc("/signup", userC.New)
+	// 1.1. use the user controller to handle the routing
+	r.HandleFunc("/signup", usersC.New)
 
 	r.NotFoundHandler = http.HandlerFunc(notfound)
 	http.ListenAndServe(":3000", r)
