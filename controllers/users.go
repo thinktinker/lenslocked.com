@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gorilla/schema"
 	"lenslocked.com/views"
 )
 
@@ -32,21 +31,16 @@ func (u *Users) New(w http.ResponseWriter, r *http.Request) {
 // POST /signup
 func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 
-	// 1. r.ParseForm is required to put the results of
-	//    a POST, PUT or PATCH method into r.PostForm or r.Form
-	if err := r.ParseForm(); err != nil {
+	// Created a helper function based on DRY principles
+	// to parse form data, the form should be sent as a pointer
+	// so that it may be referenced here
+	var form SignUpForm
+
+	if err := parseForm(r, &form); err != nil {
 		panic(err)
 	}
 
-	// 2.1 Instead of using PostForm to call on individual form values
-	//     e.g fmt.Fprintln(w, r.PostForm['email'])
-	//     we are going to use gorilla schema's Decoder to grab all the POST values
-	//
-	dec := schema.NewDecoder()
-	var form SignUpForm
-	if err := dec.Decode(&form, r.PostForm); err != nil {
-		panic(err)
-	}
+	fmt.Fprintln(w, "The results captured is:")
 	fmt.Fprintln(w, form)
 }
 
