@@ -4,9 +4,9 @@ import "lenslocked.com/views"
 
 func NewStatic() *Static {
 	return &Static{
-		HomeView:    views.NewView("bootstrap", "views/static/home.gohtml"),
-		ContactView: views.NewView("bootstrap", "views/static/contact.gohtml"),
-		FaqView:     views.NewView("bootstrap", "views/static/faq.gohtml"),
+		HomeView:    views.NewView("bootstrap", "static/home"),
+		ContactView: views.NewView("bootstrap", "static/contact"),
+		FaqView:     views.NewView("bootstrap", "static/faq"),
 	}
 }
 
