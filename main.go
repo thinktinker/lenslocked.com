@@ -9,29 +9,11 @@ import (
 )
 
 var (
-	homeView     *views.View
-	contactView  *views.View
-	faqView      *views.View
 	notfoundView *views.View
 )
 
 // Handler functions (or Actions) START here
 // ****************************************
-
-func home(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	must(homeView.Render(w, nil))
-}
-
-func contact(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html") //or you can you text/plain
-	must(contactView.Render(w, nil))
-}
-
-func faq(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	must(faqView.Render(w, nil))
-}
 
 func notfound(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
@@ -43,20 +25,23 @@ func notfound(w http.ResponseWriter, r *http.Request) {
 // Handler functions (or Actions) END here
 
 func main() {
-	homeView = views.NewView("bootstrap", "views/home.gohtml")
-	contactView = views.NewView("bootstrap", "views/contact.gohtml")
-	faqView = views.NewView("bootstrap", "views/faq.gohtml")
 
 	//1. Create an instance of a new Users controller
-	//that returns the address of a struct &Users instance
+	//   that returns the address of a struct &Users instance
+	//   UPDATE: All static pages are now served through a a controller
 	userC := controllers.NewUsers()
+	staticC := controllers.NewStatics()
 
-	notfoundView = views.NewView("bootstrap404", "views/notfound.gohtml")
+	notfoundView = views.NewView("bootstrap404", "views/static/notfound.gohtml")
 
 	r := mux.NewRouter()
-	r.HandleFunc("/", home).Methods("GET")
-	r.HandleFunc("/contact", contact).Methods("GET")
-	r.HandleFunc("/faq", faq).Methods("GET")
+
+	// UPDATE: Use Gorilla's Handle interface to route static pages
+	// The Handle interface has a default function ServeHTTP
+	// Therefore was implemented in view.go as well
+	r.Handle("/", staticC.Home).Methods("GET")
+	r.Handle("/contact", staticC.Contact).Methods("GET")
+	r.Handle("/faq", staticC.Faq).Methods("GET")
 
 	// 1.1 Use the user controller to handle routes for a GET request
 	r.HandleFunc("/signup", userC.New).Methods("GET")

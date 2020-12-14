@@ -30,9 +30,22 @@ func (u *Users) New(w http.ResponseWriter, r *http.Request) {
 // This is used to create a new user account.
 // POST /signup
 func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "We received your response")
+
+	var form signupForm
+
+	if err := parseForm(r, &form); err != nil {
+		panic(err)
+	}
+
+	fmt.Fprintln(w, "Results of sign up:")
+	fmt.Fprintln(w, form)
 }
 
 type Users struct {
 	NewView *views.View
+}
+
+type signupForm struct {
+	Email    string `schema:"email"`
+	Password string `schema:"password"`
 }
