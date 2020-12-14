@@ -10,8 +10,8 @@ import (
 func main() {
 
 	//1. Create an instance of a new Users controller
-	//that returns the address of a struct &Users instance
-	//also, added a new controller for static pages
+	//   that returns the address of a struct &Users instance
+	//   also, added a new controller for static pages
 	userC := controllers.NewUsers()
 	staticC := controllers.NewStatic()
 
