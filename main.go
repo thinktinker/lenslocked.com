@@ -5,58 +5,23 @@ import (
 
 	"github.com/gorilla/mux"
 	"lenslocked.com/controllers"
-	"lenslocked.com/views"
 )
-
-var (
-	homeView     *views.View
-	contactView  *views.View
-	faqView      *views.View
-	notfoundView *views.View
-)
-
-// Handler functions (or Actions) START here
-// ****************************************
-
-func home(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	must(homeView.Render(w, nil))
-}
-
-func contact(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html") //or you can you text/plain
-	must(contactView.Render(w, nil))
-}
-
-func faq(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	must(faqView.Render(w, nil))
-}
-
-func notfound(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html")
-	w.WriteHeader(http.StatusNotFound)
-	must(notfoundView.Render(w, nil))
-}
-
-// ****************************************
-// Handler functions (or Actions) END here
 
 func main() {
-	homeView = views.NewView("bootstrap", "views/home.gohtml")
-	contactView = views.NewView("bootstrap", "views/contact.gohtml")
-	faqView = views.NewView("bootstrap", "views/faq.gohtml")
 
 	//1. Create an instance of a new Users controller
 	//that returns the address of a struct &Users instance
+	//also, added a new controller for static pages
 	userC := controllers.NewUsers()
+	staticC := controllers.NewStatic()
 
-	notfoundView = views.NewView("bootstrap404", "views/notfound.gohtml")
-
+	// Note: gorilla mux's Handle interface takes
+	// in a default ServeHTTP method as a second argument.
+	// As long as ServeHTTP is applied in view.go, the below would work
 	r := mux.NewRouter()
-	r.HandleFunc("/", home).Methods("GET")
-	r.HandleFunc("/contact", contact).Methods("GET")
-	r.HandleFunc("/faq", faq).Methods("GET")
+	r.Handle("/", staticC.HomeView).Methods("GET")
+	r.Handle("/contact", staticC.ContactView).Methods("GET")
+	r.Handle("/faq", staticC.FaqView).Methods("GET")
 
 	// 1.1 Use the user controller to handle routes for a GET request
 	r.HandleFunc("/signup", userC.New).Methods("GET")
@@ -64,7 +29,6 @@ func main() {
 	// 2 Set the /signup to lookout for a POST request
 	r.HandleFunc("/signup", userC.Create).Methods("POST")
 
-	r.NotFoundHandler = http.HandlerFunc(notfound)
 	http.ListenAndServe(":3000", r)
 }
 
