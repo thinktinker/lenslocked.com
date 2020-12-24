@@ -13,9 +13,9 @@ import (
 const (
 	host     = "localhost"
 	port     = 5432
-	user     = "<username> // username here uid -UN
+	user     = "<username>" // username here uid -UN
 	password = ""
-	dbname   = "<database_name> //database name here
+	dbname   = "<database_name>" //database name here
 )
 
 //Create a GORM model
