@@ -1,10 +1,7 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"strings"
 
 	// using gorm instead to access Go's database/sql package
 	// gorm is an Object Relation Mapper or a code library that automates
@@ -18,7 +15,7 @@ const (
 	port     = 5432
 	user     = "<username>" // username here uid -UN
 	password = ""
-	dbname   = "database_name" //database name here
+	dbname   = "<database_name>" //database name here
 )
 
 //Create a GORM model
@@ -60,39 +57,41 @@ func main() {
 	//use Automigrate to gererate the Usertable based on the struct Model created above
 	db.AutoMigrate(&User{})
 
-	name, email, color := getInfo()
-
-	u := User{
-		Name:  name,
-		Email: email,
-		Color: color,
-	}
-
-	if err := db.Create(&u).Error; err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("%+v\n", u)
-
 	//use gorm to drop the users table
 	// db.DropTableIfExists(&User{})
-}
 
-func getInfo() (name, email, color string) {
-	reader := bufio.NewReader(os.Stdin)
+	//1. gorm chaining example
+	var u1 User
+	db.Where("id=?", 3).First(&u1)
+	//or db.First(&u) or db.Last(&u) or db.First(&u, 4) -- the last query assumes to be asking for id=4
+	fmt.Println(u1)
 
-	fmt.Println("What is your name?")
-	name, _ = reader.ReadString('\n')
+	//2. gorm split the chain
+	var u2 User
+	newDB := db.Where("id= ? AND color = ?", 5, "red")
+	newDB.First(&u2)
+	fmt.Println(u2)
 
-	fmt.Println("What is your email?")
-	email, _ = reader.ReadString('\n')
+	//3. gorm 2nd chaining example
+	var u3 User
+	db.Where("id>?", 3).
+		Where("color=?", "red").
+		First(&u3)
+	fmt.Println(u3)
 
-	fmt.Println("What is your favourite color?")
-	color, _ = reader.ReadString('\n')
+	//4. gorm querying user using the model object
+	// In this example, this variable is already a pointer to an address
+	var u4 *User = &User{
+		Color: "red",
+		Email: "j_b@gmail.com",
+	}
+	db.Where(u4).First(u4)
+	fmt.Println(u4)
 
-	name = strings.TrimSpace(name)
-	email = strings.TrimSpace(email)
-	color = strings.TrimSpace(color)
+	//5. Querying mulitple records
+	var users []User
+	db.Find(&users)
+	fmt.Println(len(users))
+	fmt.Printf("%+v", users)
 
-	return name, email, color
 }
