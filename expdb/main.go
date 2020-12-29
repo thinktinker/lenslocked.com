@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	// using gorm instead to access Go's database/sql package
 	// gorm is an Object Relation Mapper or a code library that automates
@@ -92,6 +93,92 @@ func main() {
 	var users []User
 	db.Find(&users)
 	fmt.Println(len(users))
-	fmt.Printf("%+v", users)
+	fmt.Printf("The model: %+v", users)
+
+	// 6. Error Handling in Gorm
+
+	// 6.1
+	// The first example chains the query together using DB1
+	// This refers to the same object newBD1 and will therefore be able to catch 'no records' error
+	var usr1 User
+	newDB1 := db.Where("email=?", "blahblah1@gmail.com")
+	newDB1 = newDB1.Or("color=?", "red")
+	newDB1 = newDB1.First(&usr1)
+
+	if newDB1.Error != nil {
+		fmt.Println("There was an error")
+		panic(newDB1.Error)
+	}
+
+	fmt.Println(usr1)
+
+	// The second example here doesn't chain the database
+	// As both statements refer to different objects, any errors won't be caught
+	var usr1_1 User
+	db.Where("email=? Or color=?", "blahblah@gmail_1.com", "red")
+	db.First(&usr1_1)
+
+	if db.Error != nil { // this statement here won't be able to catch the error
+		panic(db.Error)
+	}
+
+	fmt.Println(usr1_1)
+
+	// 6.2
+	// To trap errors using Gorm's GetErrors
+	var usr2 User
+	newDB2 := db.Where("email=?", "blahblah2@gmail.com")
+	newDB2 = newDB2.Or("color=?", "red")
+	newDB2 = newDB2.First(&usr2)
+
+	errs := newDB2.GetErrors() //this checks for multiple erros
+
+	if len(errs) > 0 { // if the len of errs is greater than zeor
+		fmt.Println(errs) // print the errors
+		os.Exit(1)        // and exit the program
+	}
+
+	fmt.Println(usr2)
+
+	// 6.3
+	// Trapping a RecordNotFound error
+	var usr3 User
+	newDB3 := db.Where("email=?", "blahblah3@gmail.com")
+	newDB3 = newDB3.Or("color=?", "red")
+	newDB3 = newDB3.First(&usr3)
+
+	if newDB3.RecordNotFound() {
+		fmt.Println("No user found.")
+	} else if newDB3.Error != nil {
+		panic(newDB3.Error)
+	} else {
+		fmt.Println(usr3)
+	}
+
+	// 6.4
+	// Trapping a error using switch statements
+	var usr4 User
+	newDB4 := db.Where("email=?", "blahblah4@gmail.com")
+	newDB4 = newDB4.Where("color=?", "red")
+	newDB4 = newDB4.First(&usr4)
+
+	if err := newDB4.Error; err != nil {
+		// list of errors found at: https://github.com/jinzhu/gorm/blob/master/errors.go#L25
+		// ErrRecordNotFound
+		// ErrInvalidSQL
+		// ErrInvalidTransaction
+		// ErrCantStartTransaction
+		// ErrUnaddressable
+		switch err {
+		case gorm.ErrRecordNotFound:
+			fmt.Println("No user found.")
+		case gorm.ErrInvalidSQL:
+			fmt.Println("Invalid query statement.")
+		default:
+			panic(err)
+		}
+	}
+
+	fmt.Println(usr4)
 
 }
